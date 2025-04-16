@@ -16,3 +16,8 @@ class FragmentNotFound(Exception):
 class VectorIndexConflict(Exception):
     """Se lanza cuando el vector_id ya está en uso en FAISS."""
     pass
+
+
+class VectorIndexNotFound(Exception):
+    """Se lanza cuando no se encuentra un índice vector"""
+    pass
