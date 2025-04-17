@@ -1,5 +1,4 @@
-# app/main.py
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter, Depends
 from sqlalchemy import text
 from app.db.session import SessionLocal
 from app.routes.user_route import router as user_router
