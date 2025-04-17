@@ -10,7 +10,8 @@ load_dotenv()
 class Settings(BaseSettings):
     DATABASE_URL: str  # Variable obligatoria para conectar a la base de datos
 
-    # Later: SECRET_KEY: str # Clave secreta para firmar tokens JWT (se usará más adelante)
+    SECRET_KEY: str
+
     # Later: OPENAI_API_KEY: str = ""  # API key para OpenAI, inicializada como cadena vacía
 
     class Config:
