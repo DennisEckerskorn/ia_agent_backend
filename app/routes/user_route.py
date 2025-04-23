@@ -11,6 +11,7 @@ from app.db.crud.user_crud import (
 )
 from app.db.schemas.userschema import UserCreate, UserOut
 from app.db.dependencies import get_db
+from app.core.exceptions import UserAlreadyExists  # Agrega UserNotFound si lo creas
 
 router = APIRouter(prefix="/users", tags=["Usuarios"])
 
@@ -19,14 +20,14 @@ router = APIRouter(prefix="/users", tags=["Usuarios"])
 @router.post("/login")
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     """
-    Autenticación de usuario, Devuelve el token JWT
+    Autenticación de usuario, devuelve el token JWT.
     """
     user = authenticate_user(db, form_data.username, form_data.password)
     token = create_access_token(data={"sub": str(user.id)})
     return {"access_token": token, "token_type": "bearer"}
 
 
-# -------- OBTENER USUARIO ACTUAL --------
+# -------- USUARIO ACTUAL --------
 @router.get("/me", response_model=UserOut)
 def read_users_me(current_user=Depends(get_current_user)):
     """
@@ -38,10 +39,10 @@ def read_users_me(current_user=Depends(get_current_user)):
 # -------- REGISTRO DE USUARIOS NUEVOS --------
 @router.post("/register", response_model=UserOut)
 def register_user(user: UserCreate, db: Session = Depends(get_db), current_user=Depends(require_admin)):
-    existing_user = get_user_by_username(db, user.username)
-    if existing_user:
-        raise HTTPException(status_code=409, detail="El usuario ya existe")
-    return create_user(db, user)
+    try:
+        return create_user(db, user)
+    except UserAlreadyExists as e:
+        raise HTTPException(status_code=409, detail=str(e))
 
 
 # -------- LISTAR TODOS LOS USUARIOS --------
@@ -53,16 +54,22 @@ def get_users(db: Session = Depends(get_db), current_user=Depends(require_admin)
 # -------- OBTENER USUARIO POR ID --------
 @router.get("/getById/{user_id}", response_model=UserOut)
 def get_user(user_id: int, db: Session = Depends(get_db), current_user=Depends(require_admin)):
-    user = get_user_by_id(db, user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="Usuario no encontrado")
-    return user
+    try:
+        user = get_user_by_id(db, user_id)
+        if not user:
+            raise HTTPException(status_code=404, detail="Usuario no encontrado")
+        return user
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al obtener el usuario: {str(e)}")
 
 
 # -------- ELIMINAR USUARIO --------
 @router.delete("/delete/{user_id}", response_model=UserOut)
 def delete_user_by_id(user_id: int, db: Session = Depends(get_db), current_user=Depends(require_admin)):
-    user = delete_user(db, user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="Usuario no encontrado")
-    return user
+    try:
+        user = delete_user(db, user_id)
+        if not user:
+            raise HTTPException(status_code=404, detail="Usuario no encontrado")
+        return user
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al eliminar el usuario: {str(e)}")

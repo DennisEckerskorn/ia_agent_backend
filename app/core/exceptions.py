@@ -21,3 +21,28 @@ class VectorIndexConflict(Exception):
 class VectorIndexNotFound(Exception):
     """Se lanza cuando no se encuentra un índice vector"""
     pass
+
+
+class DocumentProcessingError(Exception):
+    """Error general durante el procesamiento del documento"""
+    pass
+
+
+class PDFExtractionError(DocumentProcessingError):
+    """Fallo al extraer texto del PDF"""
+    pass
+
+
+class FAISSLoadError(DocumentProcessingError):
+    """Fallo al cargar o guardar el índice FAISS"""
+    pass
+
+
+class FragmentCreationError(DocumentProcessingError):
+    """Fallo al guardar un fragmento"""
+    pass
+
+
+class VectorInsertionError(DocumentProcessingError):
+    """Fallo al crear el vector en FAISS o en DB"""
+    pass
