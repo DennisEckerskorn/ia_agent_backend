@@ -2,11 +2,15 @@ from fastapi import FastAPI, APIRouter, Depends
 from sqlalchemy import text
 from app.db.session import SessionLocal
 from app.routes.user_route import router as user_router
+from app.routes.document_route import router as document_router
+
 
 app = FastAPI()
 
 app.include_router(user_router)
-print("✅ user_router incluido correctamente")
+app.include_router(document_router)
+print("user_router incluido correctamente")
+print("document_router incluido correctamente")
 
 
 @app.on_event("startup")
