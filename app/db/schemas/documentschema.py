@@ -19,7 +19,7 @@ class DocumentOut(BaseModel):
     Incluye fecha de carga para auditoría o filtros.
 
     """
-    id: str
+    id: int
     name: str
     uploaded_at: datetime
 

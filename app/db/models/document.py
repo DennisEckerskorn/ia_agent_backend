@@ -9,3 +9,10 @@ class Document(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String)
     uploaded_at = Column(DateTime, default=datetime.datetime.utcnow())
+
+
+    fragments = relationship(
+        "Fragment",
+        back_populates="document",
+        cascade="all, delete-orphan"
+    )
