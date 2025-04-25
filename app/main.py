@@ -1,4 +1,5 @@
 from fastapi import FastAPI, APIRouter, Depends
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from app.db.session import SessionLocal
 from app.routes.user_route import router as user_router
@@ -8,6 +9,15 @@ from app.routes.vectorindex_route import router as vectorindex_router
 from app.routes.ask_route import router as ask_router
 
 app = FastAPI()
+
+# -------- CORS --------
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(user_router)
 app.include_router(document_router)
@@ -25,7 +35,6 @@ print("ask_router incluido correctamente")
 def startup_event():
     try:
         db = SessionLocal()
-        # Ejecuta una consulta simple
         db.execute(text("SELECT 1"))
         print("Conexión a la base de datos exitosa.")
     except Exception as e:
