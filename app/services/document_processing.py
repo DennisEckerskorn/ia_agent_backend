@@ -30,7 +30,7 @@ def extract_text_from_pdf(filepath: str) -> str:
         raise PDFExtractionError(f"Error extrayendo texto del PDF: {e}")
 
 
-def split_text_into_chunks(text: str, max_chars: int = 800) -> list[str]:
+def split_text_into_chunks(text: str, max_chars: int = 500) -> list[str]:
     paragraphs = text.split("\n")
     chunks, current = [], ""
 
