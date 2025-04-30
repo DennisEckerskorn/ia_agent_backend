@@ -10,7 +10,7 @@ from app.db.crud.document_crud import (
     get_all_documents, delete_document
 )
 from app.db.schemas.documentschema import DocumentCreate, DocumentOut
-from app.services.document_processing import process_document
+from app.services.document_processing import process_document, delete_document_processing
 from app.core.exceptions import (
     PDFExtractionError, FAISSLoadError,
     FragmentCreationError, VectorInsertionError,
@@ -102,4 +102,7 @@ def delete_document_by_id(
     doc = get_document_by_id(db, doc_id)
     if not doc:
         raise HTTPException(status_code=404, detail="Documento no encontrado")
+
+    delete_document_processing(doc.id, doc.name, db)
+
     return delete_document(db, doc_id)

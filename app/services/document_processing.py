@@ -4,8 +4,8 @@ import faiss
 import numpy as np
 from sqlalchemy.orm import Session
 
-from app.db.crud.fragment_crud import create_fragment
-from app.db.crud.vectorindex_crud import create_vector_index
+from app.db.crud.fragment_crud import create_fragment, get_fragments_by_document_id
+from app.db.crud.vectorindex_crud import create_vector_index, get_vectors_by_fragment_id
 from app.db.schemas.fragmentschema import FragmentCreate
 from app.db.schemas.vectorindexschema import VectorIndexCreate
 
@@ -109,3 +109,29 @@ def process_document(document_id: int, filepath: str, db: Session):
 
     save_faiss_index(index)
     print("Documento procesado y persistido con éxito")
+
+
+def delete_document_processing(document_id: int, document_name: str, db: Session):
+    #1. Eliminar archivo del disco.
+    filepath = os.path.join("uploaded_docs", f"{document_name}.pdf")
+    if os.path.exists(filepath):
+        os.remove(filepath)
+
+    #2. Eliminar vectores de FAISS
+    if os.path.exists(FAISS_INDEX_PATH):
+        try:
+            index = faiss.read_index(FAISS_INDEX_PATH)
+
+            fragments = get_fragments_by_document_id(db, document_id)
+            faiss_ids = []
+            for frag in fragments:
+                vectors = get_vectors_by_fragment_id(db, frag.id)
+                faiss_ids.extend([vec.vector_id for vec in vectors])
+
+            if faiss_ids:
+                selector = faiss.IDSelectorBatch(np.array(faiss_ids, dtype='int64'))
+                index.remove_ids(selector)
+                faiss.write_index(index, FAISS_INDEX_PATH)
+
+        except Exception as e:
+            raise FAISSLoadError(f"Error al limpiar FAISS: {e}")
